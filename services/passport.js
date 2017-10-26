@@ -26,25 +26,38 @@ passport.use(new GoogleStrategy(
         callbackURL: '/auth/google/callback',
         proxy: true
     },
-    (accessToken, refreshToken, profile, done) => {
+    async (accessToken, refreshToken, profile, done) => {
 
-        User.findOne({googleId: profile.id})
-            .then((existingUser) => {
+        const existingUser = await User.findOne({googleId: profile.id});
 
-                if(existingUser){
-                    done(null, existingUser);
-                }
-                else {
-                    new User({googleId: profile.id})
-                        .save()
-                        .then(user => done(null, user));
-                }
-            });
+        if(existingUser) {
 
+             return done(null, existingUser);
+        }
 
-        // console.log('accessToken', accessToken);
-        // console.log('refreshToken', refreshToken);
-        // console.log('profile', profile);
-        // console.log('done', done);
+        const user = await new User({googleId: profile.id}).save();
+        done(null, user);
+
     }
+    // (accessToken, refreshToken, profile, done) => {
+    //
+    //     User.findOne({googleId: profile.id})
+    //         .then((existingUser) => {
+    //
+    //             if(existingUser){
+    //                 done(null, existingUser);
+    //             }
+    //             else {
+    //                 new User({googleId: profile.id})
+    //                     .save()
+    //                     .then(user => done(null, user));
+    //             }
+    //         });
+    //
+    //
+    //     // console.log('accessToken', accessToken);
+    //     // console.log('refreshToken', refreshToken);
+    //     // console.log('profile', profile);
+    //     // console.log('done', done);
+    // }
 ));
